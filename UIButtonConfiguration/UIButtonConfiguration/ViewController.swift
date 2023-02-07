@@ -8,7 +8,10 @@
 import UIKit
 
 class ViewController: UIViewController {
-
+    
+    let demoButton = UIButton()
+    var demoButtonConfig: UIButton.Configuration = .filled()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         addDemoButton()
@@ -16,50 +19,83 @@ class ViewController: UIViewController {
     }
     
     private func addMenu() {
-        let button = UIButton()
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle("Click to interact", for: .normal)
-        button.setTitleColor(.link, for: .normal)
-        button.addAction(.init(handler: { action in
-            print("clicked")
-        }), for: .touchUpInside)
-        view.addSubview(button)
+        let stackView = UIStackView()
+        stackView.axis = .horizontal
+        stackView.spacing = 8
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(stackView)
         NSLayoutConstraint.activate([
-            button.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            button.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20)
+            stackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
+            stackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 8),
+            stackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -8)
         ])
-    }
-    
-    private func addDemoButton() {
+        
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         
-        button.setTitle("Parrot", for: .normal)
+        button.setTitle("Click to interact", for: .normal)
+        button.addAction(.init(handler: { action in
+            print("clicked")
+        }), for: .touchUpInside)
+        
+        let configs: [String: UIButton.Configuration] = [
+            "Filled": .filled(),
+            "Bordered": .bordered(),
+            "Bordered Prominent": .borderedProminent(),
+            "Bordered Tinted": .borderedTinted(),
+            "Borderless": .borderless(),
+            "Gray": .gray(),
+            "Plain": .plain()
+        ]
+        
+        let actions = configs.map {(key, config) in
+            UIAction(title: key) { _ in
+                self.demoButtonConfig = config
+                self.demoButton.setNeedsUpdateConfiguration()
+            }
+        }
+        
+        button.configuration = configs.first?.value
+        
+        let menu = UIMenu(title: "Configs", options: .singleSelection, children: actions)
+        button.menu = menu
+        button.showsMenuAsPrimaryAction = true
+        button.changesSelectionAsPrimaryAction = true
+        button.preferredMenuElementOrder = .automatic
+        
+        stackView.addArrangedSubview(button)
+    }
+    
+    private func addDemoButton() {
+        let button = demoButton
+        button.translatesAutoresizingMaskIntoConstraints = false
+        
         button.addAction(.init(handler: { action in
             print("I am parrot")
         }), for: .touchUpInside)
         
-        var config = UIButton.Configuration.filled()
-        config.buttonSize = .large
-        config.cornerStyle = .capsule
-        
-        config.image = UIImage(systemName: "person")
-        config.imagePadding = 8
-        config.imagePlacement = .leading
-        
-        config.titleTextAttributesTransformer = .init({ container in
-            var newContainer = container
-            newContainer.font = UIFont.preferredFont(forTextStyle: .title1)
-            return newContainer
-        })
-        
-        button.configuration = config
+        button.configurationUpdateHandler = { button in
+            var config = self.demoButtonConfig
+            config.buttonSize = .medium
+            config.title = "Parrot"
+            config.cornerStyle = .dynamic
+            config.titleTextAttributesTransformer = .init({ container in
+                var newContainer = container
+                newContainer.font = UIFont.preferredFont(forTextStyle: .title1)
+                return newContainer
+            })
+            config.image = UIImage(systemName: "person")
+            config.imagePadding = 8
+            config.imagePlacement = .leading
+            button.configuration = config
+        }
         
         view.addSubview(button)
         NSLayoutConstraint.activate([
             button.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             button.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
+        button.setNeedsUpdateConfiguration()
     }
-
+    
 }
