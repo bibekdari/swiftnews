@@ -14,14 +14,16 @@ class ViewController: UIViewController {
         
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.backgroundColor = .tintColor
         
         button.setTitle("Parrot", for: .normal)
         button.addAction(.init(handler: { action in
             print("I am parrot")
         }), for: .touchUpInside)
         
-        let config = UIButton.Configuration.filled()
+        var config = UIButton.Configuration.filled()
+        config.buttonSize = .large
+        config.cornerStyle = .capsule
+        
         button.configuration = config
         
         view.addSubview(button)
