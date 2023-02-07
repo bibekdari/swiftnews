@@ -6,6 +6,7 @@ we want to use this repository as a repo containing examples of various things r
 
 By participating, you are expected to uphold this code. You also can participate by creating PRs for that you simply need to get a topic and start working out on it.
 Please don't forget to give credit to author if you are following some tutorials.
+And add README file.
 
 #### Topics we are interested to explore
 1. SwiftUI
