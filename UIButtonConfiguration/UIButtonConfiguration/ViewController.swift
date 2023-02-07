@@ -17,6 +17,7 @@ class ViewController: UIViewController {
     }()
     var selectedConfigTitle: String = "Filled"
     var isImageVisible: Bool = true
+    var isSubtitleEnabled: Bool = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -85,19 +86,34 @@ class ViewController: UIViewController {
             vStackView.addArrangedSubview(hStackView2)
             
             let hStackView3 = hStack()
-            let label = UILabel()
-            label.text = "Show Image?"
-            hStackView3.addArrangedSubview(label)
+            let labelImage = UILabel()
+            labelImage.text = "Show Image?"
+            hStackView3.addArrangedSubview(labelImage)
             
-            let toggle = UISwitch()
-            toggle.addAction(.init(handler: { _ in
+            let toggleImage = UISwitch()
+            toggleImage.addAction(.init(handler: { _ in
                 self.isImageVisible.toggle()
                 self.demoButton.setNeedsUpdateConfiguration()
             }), for: .touchUpInside)
-            toggle.isOn = isImageVisible
-            hStackView3.addArrangedSubview(toggle)
+            toggleImage.isOn = isImageVisible
+            hStackView3.addArrangedSubview(toggleImage)
             
             vStackView.addArrangedSubview(hStackView3)
+            
+            let hStackView4 = hStack()
+            let labelSubtitle = UILabel()
+            labelSubtitle.text = "Show Subtitle?"
+            hStackView4.addArrangedSubview(labelSubtitle)
+            
+            let toggleSubtitle = UISwitch()
+            toggleSubtitle.addAction(.init(handler: { _ in
+                self.isSubtitleEnabled.toggle()
+                self.demoButton.setNeedsUpdateConfiguration()
+            }), for: .touchUpInside)
+            toggleSubtitle.isOn = isSubtitleEnabled
+            hStackView4.addArrangedSubview(toggleSubtitle)
+            
+            vStackView.addArrangedSubview(hStackView4)
         }
         makeMenu()
     }
@@ -113,6 +129,9 @@ class ViewController: UIViewController {
         button.configurationUpdateHandler = { button in
             var config = self.demoButtonConfig
             config.title = "Parrot"
+            if self.isSubtitleEnabled {
+                config.subtitle = "Hello"
+            }
             if self.isImageVisible {
                 config.image = UIImage(systemName: "person")
                 config.imagePadding = 8
