@@ -11,7 +11,10 @@ class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        addDemoButton()
+    }
+    
+    private func addDemoButton() {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         
