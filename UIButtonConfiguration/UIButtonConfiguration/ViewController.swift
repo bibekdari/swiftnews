@@ -23,6 +23,46 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         addDemoButton()
         addMenu()
+        addDemoButton2()
+    }
+    
+    private func addDemoButton2() {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        
+        button.addAction(.init(handler: { action in
+            print("I am parrot")
+        }), for: .touchUpInside)
+        
+        var config = UIButton.Configuration.filled()
+        config.title = "I am Duck"
+        config.subtitle = "Quack"
+        config.titleAlignment = .center
+        config.titlePadding = 12
+        config.baseBackgroundColor = .purple
+        config.baseForegroundColor = .white
+//        config.background.backgroundColor = .black
+        config.background.strokeColor = .green
+        config.background.strokeWidth = 2
+//        config.showsActivityIndicator = true
+        config.buttonSize = .large
+        config.cornerStyle = .capsule
+        config.image = UIImage(systemName: "atom")
+        config.imagePlacement = .trailing
+        config.imagePadding = 8
+        config.titleTextAttributesTransformer = .init({ container in
+            var newContainer = container
+            newContainer.font = UIFont.preferredFont(forTextStyle: .title3)
+            return newContainer
+        })
+        button.configuration = config
+        
+        view.addSubview(button)
+        NSLayoutConstraint.activate([
+            button.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            button.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 40)
+        ])
+        button.setNeedsUpdateConfiguration()
     }
     
     private func addMenu() {
