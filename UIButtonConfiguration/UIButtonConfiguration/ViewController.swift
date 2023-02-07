@@ -12,6 +12,22 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         addDemoButton()
+        addMenu()
+    }
+    
+    private func addMenu() {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle("Click to interact", for: .normal)
+        button.setTitleColor(.link, for: .normal)
+        button.addAction(.init(handler: { action in
+            print("clicked")
+        }), for: .touchUpInside)
+        view.addSubview(button)
+        NSLayoutConstraint.activate([
+            button.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            button.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20)
+        ])
     }
     
     private func addDemoButton() {
