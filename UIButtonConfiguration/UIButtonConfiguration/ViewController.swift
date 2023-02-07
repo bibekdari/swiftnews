@@ -28,6 +28,12 @@ class ViewController: UIViewController {
         config.imagePadding = 8
         config.imagePlacement = .leading
         
+        config.titleTextAttributesTransformer = .init({ container in
+            var newContainer = container
+            newContainer.font = UIFont.preferredFont(forTextStyle: .title1)
+            return newContainer
+        })
+        
         button.configuration = config
         
         view.addSubview(button)
