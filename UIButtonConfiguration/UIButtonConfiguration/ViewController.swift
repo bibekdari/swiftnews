@@ -24,6 +24,10 @@ class ViewController: UIViewController {
         config.buttonSize = .large
         config.cornerStyle = .capsule
         
+        config.image = UIImage(systemName: "person")
+        config.imagePadding = 8
+        config.imagePlacement = .leading
+        
         button.configuration = config
         
         view.addSubview(button)
