@@ -21,6 +21,9 @@ class ViewController: UIViewController {
             print("I am parrot")
         }), for: .touchUpInside)
         
+        let config = UIButton.Configuration.filled()
+        button.configuration = config
+        
         view.addSubview(button)
         NSLayoutConstraint.activate([
             button.centerXAnchor.constraint(equalTo: view.centerXAnchor),
