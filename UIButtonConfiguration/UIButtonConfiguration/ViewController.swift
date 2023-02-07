@@ -15,6 +15,8 @@ class ViewController: UIViewController {
         config.buttonSize = .medium
         return config
     }()
+    var selectedConfigTitle: String = "Filled"
+    var isImageVisible: Bool = true
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -34,41 +36,68 @@ class ViewController: UIViewController {
             vStackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -8)
         ])
         
+        func hStack() -> UIStackView {
+            let stack = UIStackView()
+            stack.axis = .horizontal
+            stack.spacing = 8
+            return stack
+        }
+        
         func makeMenu() {
             vStackView.arrangedSubviews.forEach({$0.removeFromSuperview()})
-            let hStackView1 = UIStackView()
-            hStackView1.axis = .horizontal
-            hStackView1.spacing = 8
+            
+            let hStackView1 = hStack()
             
             hStackView1.addArrangedSubview(predefinedConfigsMenu {
                 makeMenu()
                 self.demoButtonConfig = $0
             })
             hStackView1.addArrangedSubview(buttonSizeMenu {
-                self.demoButtonConfig.buttonSize = $0
+                $0.map {
+                    self.demoButtonConfig.buttonSize = $0
+                }
             })
             hStackView1.addArrangedSubview(cornerStyleMenu {
-                self.demoButtonConfig.cornerStyle = $0
+                $0.map {
+                    self.demoButtonConfig.cornerStyle = $0
+                }
             })
             
-            let hStackView2 = UIStackView()
-            hStackView2.axis = .horizontal
-            hStackView2.spacing = 8
+            let hStackView2 = hStack()
             
-            hStackView2.addArrangedSubview(titleTextStyle { textStyle in
-                self.demoButtonConfig.titleTextAttributesTransformer = .init({ container in
-                    var newContainer = container
-                    newContainer.font = UIFont.preferredFont(forTextStyle: textStyle)
-                    return newContainer
-                })
+            hStackView2.addArrangedSubview(titleTextStyle {
+                $0.map { textStyle in
+                    self.demoButtonConfig.titleTextAttributesTransformer = .init({ container in
+                        var newContainer = container
+                        newContainer.font = UIFont.preferredFont(forTextStyle: textStyle)
+                        return newContainer
+                    })
+                }
             })
             
             hStackView2.addArrangedSubview(imagePlacement {
-                self.demoButtonConfig.imagePlacement = $0
+                $0.map {
+                    self.demoButtonConfig.imagePlacement = $0
+                }
             })
             
             vStackView.addArrangedSubview(hStackView1)
             vStackView.addArrangedSubview(hStackView2)
+            
+            let hStackView3 = hStack()
+            let label = UILabel()
+            label.text = "Show Image?"
+            hStackView3.addArrangedSubview(label)
+            
+            let toggle = UISwitch()
+            toggle.addAction(.init(handler: { _ in
+                self.isImageVisible.toggle()
+                self.demoButton.setNeedsUpdateConfiguration()
+            }), for: .touchUpInside)
+            toggle.isOn = isImageVisible
+            hStackView3.addArrangedSubview(toggle)
+            
+            vStackView.addArrangedSubview(hStackView3)
         }
         makeMenu()
     }
@@ -84,8 +113,10 @@ class ViewController: UIViewController {
         button.configurationUpdateHandler = { button in
             var config = self.demoButtonConfig
             config.title = "Parrot"
-            config.image = UIImage(systemName: "person")
-            config.imagePadding = 8
+            if self.isImageVisible {
+                config.image = UIImage(systemName: "person")
+                config.imagePadding = 8
+            }
             button.configuration = config
         }
         
@@ -99,112 +130,102 @@ class ViewController: UIViewController {
     
     // MARK: - Helpers
     private func predefinedConfigsMenu(action: @escaping (UIButton.Configuration) -> Void) -> UIButton {
-        let configs: [String: UIButton.Configuration] = [
-            "Filled": .filled(),
-            "Bordered": .bordered(),
-            "Bordered Prominent": .borderedProminent(),
-            "Bordered Tinted": .borderedTinted(),
-            "Borderless": .borderless(),
-            "Gray": .gray(),
-            "Plain": .plain()
+        let configs: [(String, UIButton.Configuration)] = [
+            ("Filled", .filled()),
+            ("Bordered", .bordered()),
+            ("Bordered Prominent", .borderedProminent()),
+            ("Bordered Tinted", .borderedTinted()),
+            ("Borderless", .borderless()),
+            ("Gray", .gray()),
+            ("Plain", .plain())
         ]
         
-        let actions = configs.map {(key, config) in
-            UIAction(title: key) { _ in
-                action(config)
-                self.demoButton.setNeedsUpdateConfiguration()
-            }
-        }
-        
-        return menuButton(title: "Configs", children: actions)
+        return menuButton(title: "Configs", configs: configs, saveTitle: true, action: action)
     }
     
-    private func buttonSizeMenu(action: @escaping (UIButton.Configuration.Size) -> Void) -> UIButton {
-        let configs: [String: UIButton.Configuration.Size] = [
-            "Large": .large,
-            "Medium": .medium,
-            "Small": .small,
-            "Mini": .mini
+    private func buttonSizeMenu(action: @escaping (UIButton.Configuration.Size?) -> Void) -> UIButton {
+        let configs: [(String, UIButton.Configuration.Size?)] = [
+            ("Size", nil),
+            ("Large", .large),
+            ("Medium", .medium),
+            ("Small", .small),
+            ("Mini", .mini)
         ]
         
-        let actions = configs.map {(key, size) in
-            UIAction(title: key) { _ in
-                action(size)
-                self.demoButton.setNeedsUpdateConfiguration()
-            }
-        }
-        
-        return menuButton(title: "Size", children: actions)
+        return menuButton(title: "Size", configs: configs, action: action)
     }
     
-    private func cornerStyleMenu(action: @escaping (UIButton.Configuration.CornerStyle) -> Void) -> UIButton {
-        let configs: [String: UIButton.Configuration.CornerStyle] = [
-            "Large": .large,
-            "Medium": .medium,
-            "Small": .small,
-            "Dynamic": .dynamic,
-            "Capsule": .capsule,
-            "Fixed": .fixed
+    private func cornerStyleMenu(action: @escaping (UIButton.Configuration.CornerStyle?) -> Void) -> UIButton {
+        let configs: [(String, UIButton.Configuration.CornerStyle?)] = [
+            ("Corner Style", nil),
+            ("Large", .large),
+            ("Medium", .medium),
+            ("Small", .small),
+            ("Dynamic", .dynamic),
+            ("Capsule", .capsule),
+            ("Fixed", .fixed)
         ]
         
-        let actions = configs.map {(key, size) in
-            UIAction(title: key) { _ in
-                action(size)
-                self.demoButton.setNeedsUpdateConfiguration()
-            }
-        }
-        
-        return menuButton(title: "Corner Style", children: actions)
+        return menuButton(title: "Corner Style", configs: configs, action: action)
     }
     
-    private func titleTextStyle(action: @escaping (UIFont.TextStyle) -> Void) -> UIButton {
-        let configs: [String: UIFont.TextStyle] = [
-            "title1": .title1,
-            "title2": .title2,
-            "title3": .title3,
-            "large title": .largeTitle,
-            "headline": .headline,
-            "sub headline":.subheadline,
-            "body": .body,
-            "callout": .callout,
-            "caption1": .caption1,
-            "caption2": .caption2,
-            "footnote":.footnote
+    private func titleTextStyle(action: @escaping (UIFont.TextStyle?) -> Void) -> UIButton {
+        let configs: [(String, UIFont.TextStyle?)] = [
+            ("Title Text Style", nil),
+            ("title1", .title1),
+            ("title2", .title2),
+            ("title3", .title3),
+            ("large title", .largeTitle),
+            ("headline", .headline),
+            ("sub headline",.subheadline),
+            ("body", .body),
+            ("callout", .callout),
+            ("caption1", .caption1),
+            ("caption2", .caption2),
+            ("footnote",.footnote)
         ]
         
-        let actions = configs.map {(key, style) in
-            UIAction(title: key) { _ in
-                action(style)
-                self.demoButton.setNeedsUpdateConfiguration()
-            }
-        }
-        
-        return menuButton(title: "Title Text Style", children: actions)
+        return menuButton(title: "Title Text Style", configs: configs, action: action)
     }
     
-    private func imagePlacement(action: @escaping (NSDirectionalRectEdge) -> Void) -> UIButton {
-        let configs: [String: NSDirectionalRectEdge] = [
-            "leading": .leading,
-            "bottom": .bottom,
-            "trailing": .trailing,
-            "all": .all,
-            "top": .top
+    private func imagePlacement(action: @escaping (NSDirectionalRectEdge?) -> Void) -> UIButton {
+        let configs: [(String, NSDirectionalRectEdge?)] = [
+            ("Image Placement", nil),
+            ("leading", .leading),
+            ("bottom", .bottom),
+            ("trailing", .trailing),
+            ("all", .all),
+            ("top", .top)
         ]
         
-        let actions = configs.map {(key, value) in
-            UIAction(title: key) { _ in
-                action(value)
-                self.demoButton.setNeedsUpdateConfiguration()
-            }
-        }
-        
-        return menuButton(title: "Image Placement", children: actions)
+        return menuButton(title: "Image Placement", configs: configs, action: action)
     }
     
-    private func menuButton(title: String, children: [UIMenuElement]) -> UIButton {
+    private func menuButton<T>(
+        title: String,
+        configs: [(String, T)],
+        saveTitle: Bool = false,
+        action: @escaping (T) -> Void
+    ) -> UIButton {
         let button = UIButton()
+        var menu = UIMenu()
+        
+        let children = configs.map {(key, size) in
+            let action = UIAction(title: key) { _ in
+                if saveTitle {
+                    self.selectedConfigTitle = key
+                }
+                action(size)
+                self.demoButton.setNeedsUpdateConfiguration()
+            }
+            if saveTitle && key == self.selectedConfigTitle {
+                action.state = .on
+            }
+            return action
+        }
+        
         button.configuration = .borderless()
-        let menu = UIMenu(title: title, options: .singleSelection, children: children)
+        menu = UIMenu(title: title, options: .singleSelection, children: children)
         button.menu = menu
         button.showsMenuAsPrimaryAction = true
         button.changesSelectionAsPrimaryAction = true
